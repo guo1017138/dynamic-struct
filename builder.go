@@ -103,7 +103,6 @@ type (
 // for defining fresh dynamic struct.
 //
 // builder := dynamicstruct.NewStruct()
-//
 func NewStruct() Builder {
 	return &builderImpl{
 		fields: []*fieldConfigImpl{},
@@ -114,7 +113,6 @@ func NewStruct() Builder {
 // returns new instance of Builder interface.
 //
 // builder := dynamicstruct.MergeStructs(MyStruct{})
-//
 func ExtendStruct(value interface{}) Builder {
 	return MergeStructs(value)
 }
@@ -123,7 +121,6 @@ func ExtendStruct(value interface{}) Builder {
 // returns new instance of Builder interface.
 //
 // builder := dynamicstruct.MergeStructs(MyStructOne{}, MyStructTwo{}, MyStructThree{})
-//
 func MergeStructs(values ...interface{}) Builder {
 	builder := NewStruct()
 
@@ -188,10 +185,14 @@ func (b *builderImpl) Build() DynamicStruct {
 	var structFields []reflect.StructField
 
 	for _, field := range b.fields {
+		ty := reflect.TypeOf(field.typ)
+		if ty.String() == "*reflect.rtype" {
+			ty = field.typ.(reflect.Type)
+		}
 		structFields = append(structFields, reflect.StructField{
 			Name:      field.name,
 			PkgPath:   field.pkg,
-			Type:      reflect.TypeOf(field.typ),
+			Type:      ty,
 			Tag:       reflect.StructTag(field.tag),
 			Anonymous: field.anonymous,
 		})
